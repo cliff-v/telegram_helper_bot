@@ -1,0 +1,76 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Set up SSH agent for deployment
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Сборка Docker образа
+      - name: Build Docker image
+        run: |
+          docker build -t safronovt/telegram-helper-bot . \
+          --build-arg TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
+          --build-arg TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }} \
+          --build-arg TELEGRAM_PERSON_ID=${{ secrets.TELEGRAM_PERSON_ID }} \
+          --build-arg ADMIN_TELEGRAM_PERSON_ID=${{ secrets.ADMIN_TELEGRAM_PERSON_ID }} \
+          --build-arg CHAT_GPT_TOKEN=${{ secrets.CHAT_GPT_TOKEN }} \
+          --build-arg DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
+          --build-arg DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
+          --build-arg DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} 
+
+      # Публикация образа в Docker репозиторий
+      - name: Push Docker image to registry
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push safronovt/telegram-helper-bot
+
+      # Развертывание на сервере
+      - name: Deploy to server
+        run: |
+         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+           # Получить ID старого образа
+           OLD_IMAGE_ID=$(docker images -q safronovt/telegram-helper-bot:latest)
+         
+           # Скачать последнюю версию образа
+           docker pull safronovt/telegram-helper-bot:latest
+         
+           if [ $(docker ps -a -q -f name=telegram-helper-bot) ]; then
+              docker stop telegram-helper-bot
+              docker rm telegram-helper-bot
+           fi
+         
+           docker run --name telegram-helper-bot -d -p 8080:8189 \
+            -e TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
+            -e TELEGRAM_BOT_USERNAME=${{ secrets.TELEGRAM_BOT_USERNAME }} \
+            -e TELEGRAM_PERSON_ID=${{ secrets.TELEGRAM_PERSON_ID }} \
+            -e ADMIN_TELEGRAM_PERSON_ID=${{ secrets.ADMIN_TELEGRAM_PERSON_ID }} \
+            -e CHAT_GPT_TOKEN=${{ secrets.CHAT_GPT_TOKEN }} \
+            -e DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
+            -e DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
+            -e DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} \
+            safronovt/telegram-helper-bot
+    
+            # Удалить старый образ, если он существует и отличается от нового
+             if [ -n "$OLD_IMAGE_ID" ] && [ "$OLD_IMAGE_ID" != "$(docker images -q safronovt/telegram-helper-bot:latest)" ]; then
+             docker rmi $OLD_IMAGE_ID
+             fi
+         EOF
+
