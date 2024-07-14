@@ -35,6 +35,8 @@
 		<telegrambots.version>6.9.7.1</telegrambots.version>
 		<lombok.version>1.18.34</lombok.version>
 		<httpclient5.version>5.3</httpclient5.version>
+
+		<jar.name>telegram-helper-bot</jar.name>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -139,7 +141,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>${project.artifactId}</finalName>
+		<finalName>${jar.name}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
