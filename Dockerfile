@@ -1,5 +1,5 @@
 # Используйте мавен для сборки вашего приложения
-FROM maven:3.8.4-openjdk-17 AS build
+FROM maven:3.8.4-openjdk-22 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src /app/src
@@ -27,7 +27,7 @@ ENV DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
 RUN mvn clean package
 
 # Используйте базовый образ Java для запуска собранного jar
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:22-jre
 WORKDIR /app
 
 # Копируем только jar из сборочного контейнера
