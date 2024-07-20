@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class User extends BaseSequenceEntity {
+public class UserDao extends BaseSequenceEntity {
     private String tgName;
     private String comment;
     private String type;

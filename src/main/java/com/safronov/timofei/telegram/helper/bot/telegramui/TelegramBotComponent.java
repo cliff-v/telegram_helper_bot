@@ -1,6 +1,8 @@
 package com.safronov.timofei.telegram.helper.bot.telegramui;
 
 import com.safronov.timofei.telegram.helper.bot.repositorie.UsersRepository;
+import com.safronov.timofei.telegram.helper.bot.telegramui.telegram.BotService;
+import com.safronov.timofei.telegram.helper.bot.telegramui.telegram.MainMenu;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,22 +17,24 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Service
 @Slf4j
-public class MainMenu extends TelegramLongPollingBot {
+public class TelegramBotComponent extends TelegramLongPollingBot {
     private final TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
 
     private final String botToken;
     private final String username;
     private final UsersRepository usersRepository;
     private final BotService botService;
+    private final MainMenu mainMenu;
 
-    public MainMenu(
+    public TelegramBotComponent(
             @Value("${telegram.bot.token}") String botToken,
-//            @Value("${telegram.bot.username}") String username,
             UsersRepository usersRepository,
-            BotService botService
+            BotService botService,
+            MainMenu mainMenu
     ) throws TelegramApiException {
         super(botToken);
         this.botToken = botToken;
+        this.mainMenu = mainMenu;
         this.username = "username";
         this.usersRepository = usersRepository;
         this.botService = botService;
@@ -46,7 +50,8 @@ public class MainMenu extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         String text = update.getMessage().getText();
 
-        var userDao = usersRepository.findByTgId(user.getId()).orElse(null);
+        var userDao = usersRepository.findByTgId(user.getId())
+                .orElse(null);
 
         if (userDao == null || !BotService.checkAccess(userDao)) {
             sendMessage(user.getId(), "Ступай своей дорогой, странник\\. Входа нет тебе в сию обитель");
@@ -54,9 +59,7 @@ public class MainMenu extends TelegramLongPollingBot {
         }
         userDao = botService.fillAndUpdateUsername(user, userDao);
 
-        System.out.println(text + " " + userDao);
-
-        sendMessage(userDao.getTgId(), userDao.getTgName() + ": " + text);
+        mainMenu.processMessage(userDao, text);
     }
 
     @Override
@@ -65,7 +68,11 @@ public class MainMenu extends TelegramLongPollingBot {
     }
 
     public void sendMessage(Long who, String what) {
-        SendMessage message = SendMessage.builder().chatId(who.toString()).text(what).parseMode("MarkdownV2").build();
+        SendMessage message = SendMessage.builder()
+                .chatId(who.toString())
+                .text(what)
+                .parseMode("MarkdownV2")
+                .build();
 
         try {
             execute(message);
