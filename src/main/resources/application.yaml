@@ -11,6 +11,9 @@ spring:
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
+    devtools:
+      restart:
+        enabled: false
 server:
   port: 8888
   servlet:

@@ -1,10 +1,13 @@
 package com.safronov.timofei.telegram.helper.bot.telegramui.telegram;
 
 import com.safronov.timofei.telegram.helper.bot.model.db.UserDao;
+import com.safronov.timofei.telegram.helper.bot.telegramui.TelegramBotComponent;
 import com.safronov.timofei.telegram.helper.bot.telegramui.TelegramFacade;
 import com.safronov.timofei.telegram.helper.bot.telegramui.openai.OpenAiTelegramFacade;
 import com.safronov.timofei.telegram.helper.bot.telegramui.yandex.YandexOpenAiFacade;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,8 +19,14 @@ public class MainMenu {
 
     private final OpenAiTelegramFacade openAiTelegramFacade;
     private final YandexOpenAiFacade yandexOpenAiFacade;
+    private TelegramBotComponent telegramBotComponent;
 
     public static Map<Long, MainMenuSelectItem> mainMenuSelectItemMap = new HashMap<>();
+
+    @Autowired
+    public void setTelegramBotComponent(@Lazy TelegramBotComponent telegramBotComponent) {
+        this.telegramBotComponent = telegramBotComponent;
+    }
 
     public void processMessage(UserDao userDao, String message) {
         MainMenuSelectItem selectItem = mainMenuSelectItemMap.getOrDefault(
@@ -29,8 +38,8 @@ public class MainMenu {
     }
 
     private MainMenuSelectItem showMenuAndGetSelectItem() {
-
-        return MainMenuSelectItem.OPEN_AI;
+//        telegramBotComponent.sendInlineKeyboard("1");
+        return MainMenuSelectItem.YA_GPT;
     }
 
     private void selectServiceAndSendMessage(UserDao userDao, String message, MainMenuSelectItem selectItem) {
