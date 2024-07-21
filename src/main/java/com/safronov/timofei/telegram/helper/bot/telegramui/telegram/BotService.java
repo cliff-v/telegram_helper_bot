@@ -13,8 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 public class BotService {
     private final UsersRepository usersRepository;
     public static boolean checkAccess(UserDao userDao) {
-        return userDao.getType().equals(UserType.ADMIN.name())
-                || userDao.getType().equals(UserType.USER.name());
+        return userDao.getType().equals(UserType.ADMIN)
+                || userDao.getType().equals(UserType.USER);
     }
 
     public UserDao fillAndUpdateUsername(

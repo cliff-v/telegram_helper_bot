@@ -3,7 +3,7 @@ package com.safronov.timofei.telegram.helper.bot.telegramui.telegram.dispatcher;
 import com.safronov.timofei.telegram.helper.bot.model.db.UserDao;
 import com.safronov.timofei.telegram.helper.bot.telegramui.TelegramFacade;
 import com.safronov.timofei.telegram.helper.bot.telegramui.openai.OpenAiTelegramFacade;
-import com.safronov.timofei.telegram.helper.bot.telegramui.telegram.MainMenuSelectItem;
+import com.safronov.timofei.telegram.helper.bot.telegramui.telegram.InlineKeyboardService;
 import com.safronov.timofei.telegram.helper.bot.telegramui.yandex.YandexOpenAiFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,30 +12,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TelegramDispatcherMessages extends AbstractTelegramDispatcher {
 
-    public TelegramDispatcherMessages(OpenAiTelegramFacade openAiTelegramFacade, YandexOpenAiFacade yandexOpenAiFacade) {
-        super(openAiTelegramFacade, yandexOpenAiFacade);
+    protected TelegramDispatcherMessages(OpenAiTelegramFacade openAiTelegramFacade, YandexOpenAiFacade yandexOpenAiFacade, InlineKeyboardService inlineKeyboardService) {
+        super(openAiTelegramFacade, yandexOpenAiFacade, inlineKeyboardService);
     }
 
     public void handle(UserDao userDao, String message) {
-        MainMenuSelectItem selectItem = mainMenuSelectItemMap.getOrDefault(
-                userDao.getTgId(),
-                showMenuAndGetSelectItem()
-        );
-
-        selectServiceAndSendMessage(userDao, message, selectItem);
+        selectServiceAndSendMessage(userDao, message);
     }
 
-    private MainMenuSelectItem showMenuAndGetSelectItem() {
-        return MainMenuSelectItem.YA_GPT;
-    }
+    private void selectServiceAndSendMessage(UserDao userDao, String message) {
 
-    private void selectServiceAndSendMessage(UserDao userDao, String message, MainMenuSelectItem selectItem) {
-
-        TelegramFacade facade = switch (selectItem) {
-            case OPEN_AI -> getOpenAiTelegramFacade();
-            case YA_GPT -> getYandexOpenAiFacade();
-            case MAIN -> throw new RuntimeException();
-        };
+        TelegramFacade facade = getTelegramFacade(userDao);
 
         facade.processMessage(userDao, message);
     }

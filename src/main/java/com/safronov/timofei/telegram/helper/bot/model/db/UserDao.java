@@ -16,7 +16,10 @@ import lombok.Setter;
 public class UserDao extends BaseSequenceEntity {
     private String tgName;
     private String comment;
-    private String type;
+
+    @Enumerated(EnumType.STRING)
+    private UserType type;
+
     private String realName;
     private Long tgId;
     private String firstName;
@@ -25,4 +28,8 @@ public class UserDao extends BaseSequenceEntity {
     @ManyToOne
     @JoinColumn(name = "ai_model_id")
     private AiModel aiModel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "last_service_title")
+    private ServiceItem lastServiceItem;
 }

@@ -83,8 +83,16 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
         userDao = botService.fillAndUpdateUsername(user, userDao);
 
         if (update.hasCallbackQuery()) {
-            dispatcherButtons.handle(update.getCallbackQuery());
-        } else if (update.hasMessage()) {
+            dispatcherButtons.handle(userDao, update.getCallbackQuery());
+            return;
+        }
+
+        if (update.hasMessage()) {
+            if (userDao.getLastServiceItem() == null) {
+                dispatcherCommands.sendChooseSystemInlineKeyboard(update.getMessage());
+                return;
+            }
+
             String text = update.getMessage().getText().trim();
 
             if (text.isBlank()) {
@@ -97,7 +105,6 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
             } else {
                 dispatcherMessages.handle(userDao, text);
             }
-
         }
     }
 

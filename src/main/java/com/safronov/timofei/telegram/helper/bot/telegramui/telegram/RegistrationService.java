@@ -11,8 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 @Service
 public class RegistrationService extends AbstractTelegramDispatcher {
 
-    public RegistrationService(OpenAiTelegramFacade openAiTelegramFacade, YandexOpenAiFacade yandexOpenAiFacade) {
-        super(openAiTelegramFacade, yandexOpenAiFacade);
+    protected RegistrationService(OpenAiTelegramFacade openAiTelegramFacade, YandexOpenAiFacade yandexOpenAiFacade, InlineKeyboardService inlineKeyboardService) {
+        super(openAiTelegramFacade, yandexOpenAiFacade, inlineKeyboardService);
     }
 
     public void sendRejectMessage(User user) {
