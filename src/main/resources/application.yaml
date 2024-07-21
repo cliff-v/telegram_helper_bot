@@ -11,11 +11,16 @@ spring:
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
+    devtools:
+      restart:
+        enabled: false
 server:
   port: 8888
   servlet:
     context-path: /helper-bot
 telegram:
+  commands:
+    path: /static/telegram_commands.json
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
