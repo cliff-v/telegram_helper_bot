@@ -1,19 +1,23 @@
 package com.safronov.timofei.telegram.helper.bot.model.db;
 
-import com.safronov.timofei.telegram.helper.bot.model.BaseSequenceEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Setter
 @Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class UserDao extends BaseSequenceEntity {
+@Builder
+public class UserDao {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
+    @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
+    protected Long id;
+
     private String tgName;
     private String comment;
 

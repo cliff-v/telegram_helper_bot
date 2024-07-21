@@ -76,16 +76,14 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
         User user = botService.getUser(update);
         var userDao = botService.getUserDao(user);
 
+        if(registrationService.userRegistrationValidation(update, userDao, user)) {
+            return;
+        }
+
         if (userValidation(userDao)) {
             registrationService.sendRejectMessage(user);
-            return;
         }
         userDao = botService.fillAndUpdateUsername(user, userDao);
-
-        if (update.hasCallbackQuery()) {
-            dispatcherButtons.handle(userDao, update.getCallbackQuery());
-            return;
-        }
 
         if (update.hasMessage()) {
             if (userDao.getLastServiceItem() == null) {
@@ -95,21 +93,21 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
 
             String text = update.getMessage().getText().trim();
 
-            if (text.isBlank()) {
-                //TODO
-                System.out.println("EMPTY!");
-            }
-
             if (isCommand(text)) {
                 dispatcherCommands.handle(update, userDao, text);
             } else {
                 dispatcherMessages.handle(userDao, text);
             }
+            return;
+        }
+
+        if (update.hasCallbackQuery()) {
+            dispatcherButtons.handle(userDao, update.getCallbackQuery());
         }
     }
 
     private boolean userValidation(UserDao userDao) {
-        return userDao == null || !BotService.checkAccess(userDao);
+        return !BotService.checkAccess(userDao);
     }
 
     private boolean isCommand(String text) {
@@ -130,7 +128,7 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
         SendMessage message = SendMessage.builder()
                 .chatId(who.toString())
                 .text(what)
-                .parseMode("MarkdownV2")
+//                .parseMode("MarkdownV2")
                 .build();
 
         try {

@@ -110,4 +110,17 @@ public class InlineKeyboardService {
         return rows;
     }
 
+    public List<List<InlineKeyboardButton>> getRegistrationRequestInlineKeyboardRows() {
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(InlineKeyboardButton.builder()
+                .text("Отправить запрос на регистрацию в телеграм-боте")
+                .callbackData("registration_request_send")
+                .build());
+
+        rows.add(row1);
+
+        return rows;
+    }
 }
