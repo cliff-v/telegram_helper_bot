@@ -1,0 +1,22 @@
+[
+  {
+    "command": "/menu",
+    "description": "Меню с доступными командами по текущему сервису"
+  },
+  {
+    "command": "/choose_service",
+    "description": "Выбрать сервис"
+  },
+  {
+    "command": "/help",
+    "description": "Показать справочное сообщение"
+  },
+  {
+    "command": "/global",
+    "description": "Показать глобальные команды"
+  },
+  {
+    "command": "/info",
+    "description": "Информация по пользователю"
+  }
+]

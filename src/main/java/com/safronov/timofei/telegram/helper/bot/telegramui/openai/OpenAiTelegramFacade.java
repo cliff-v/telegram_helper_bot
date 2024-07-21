@@ -21,6 +21,6 @@ public class OpenAiTelegramFacade implements TelegramFacade {
 
     @Override
     public void processMessage(UserDao userDao, String message) {
-        telegramBotComponent.sendMessage(userDao.getTgId(), userDao.getTgName() + ": " + message);
+        telegramBotComponent.send(userDao.getTgId(), userDao.getTgName() + ": " + message);
     }
 }

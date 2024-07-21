@@ -19,6 +19,8 @@ server:
   servlet:
     context-path: /helper-bot
 telegram:
+  commands:
+    path: /static/telegram_commands.json
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
