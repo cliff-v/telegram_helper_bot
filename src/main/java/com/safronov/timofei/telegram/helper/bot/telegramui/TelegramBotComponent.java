@@ -125,11 +125,17 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
     }
 
     public void send(Long who, String what) {
+
+    }
+    public void send(Long who, String what, boolean isMarkDownParse) {
         SendMessage message = SendMessage.builder()
                 .chatId(who.toString())
                 .text(what)
-//                .parseMode("MarkdownV2")
                 .build();
+
+        if (isMarkDownParse) {
+            message.setParseMode("MarkdownV2");
+        }
 
         try {
             updateCommands();

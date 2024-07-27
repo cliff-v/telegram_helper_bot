@@ -10,10 +10,8 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
 
@@ -73,7 +71,11 @@ public class RegistrationService extends AbstractTelegramDispatcher {
         List<UserDao> admins = usersRepository.findAllByType(UserType.ADMIN);
 
         for (UserDao admin : admins) {
-            getTelegramBotComponent().send(admin.getTgId(), "Request @" + userDao.getTgName());
+            sendInlineKeyboard(
+                    String.valueOf(admin.getTgId()),
+                    "Registration request @" + userDao.getTgName() + " id:&&" + userDao.getTgId(),
+                    getInlineKeyboardService().getAdminsRegistrationRequestInlineKeyboardRows()
+            );
         }
 
         Long chatId = callbackQuery.getMessage().getChatId();
@@ -100,5 +102,21 @@ public class RegistrationService extends AbstractTelegramDispatcher {
 
     private void sendRejectBeforeApprovalMessage(UserDao userDao) {
         getTelegramBotComponent().send(userDao.getTgId(), "Запрос принят! Ожидайте одобрения");
+    }
+
+    @Transactional
+    public void handleRegistrationRequest(CallbackQuery callbackQuery, boolean isApprove) {
+        Long regUserId = getUserTgIdFromRegRequest(callbackQuery);
+
+        UserDao userDao = usersRepository.findByTgId(regUserId)
+                .orElseThrow(() -> new RuntimeException("Не найден юзер с id: " + regUserId));
+
+        userDao.setType(isApprove ? UserType.USER : UserType.BAN);
+    }
+
+   private static Long getUserTgIdFromRegRequest(CallbackQuery callbackQuery) {
+        return Long.parseLong(
+                ((Message) callbackQuery.getMessage()).getText().split("&&")[1]
+        );
     }
 }

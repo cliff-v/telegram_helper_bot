@@ -123,4 +123,27 @@ public class InlineKeyboardService {
 
         return rows;
     }
+
+    public List<List<InlineKeyboardButton>> getAdminsRegistrationRequestInlineKeyboardRows() {
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = List.of(
+                InlineKeyboardButton.builder()
+                .text("Одобрить")
+                .callbackData("registration_request_accept")
+                .build()
+        );
+
+        List<InlineKeyboardButton> row2 = List.of(
+                InlineKeyboardButton.builder()
+                        .text("Отказать")
+                        .callbackData("registration_request_reject")
+                        .build()
+        );
+
+        rows.add(row1);
+        rows.add(row2);
+
+        return rows;
+    }
 }

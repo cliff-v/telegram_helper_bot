@@ -51,8 +51,15 @@ public abstract class AbstractTelegramDispatcher {
     protected final void sendInlineKeyboard(MaybeInaccessibleMessage message,
                                             String text,
                                             List<List<InlineKeyboardButton>>... rowsArr) {
+        sendInlineKeyboard(message.getChatId().toString(), text, rowsArr);
+    }
+
+    @SafeVarargs
+    protected final void sendInlineKeyboard(String chatId,
+                                            String text,
+                                            List<List<InlineKeyboardButton>>... rowsArr) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(message.getChatId().toString());
+        sendMessage.setChatId(chatId);
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         for (List<List<InlineKeyboardButton>> rowsList : rowsArr) {
