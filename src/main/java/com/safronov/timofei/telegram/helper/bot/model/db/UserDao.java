@@ -1,7 +1,8 @@
 package com.safronov.timofei.telegram.helper.bot.model.db;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.ToString;
 
 @Entity
 @Setter
