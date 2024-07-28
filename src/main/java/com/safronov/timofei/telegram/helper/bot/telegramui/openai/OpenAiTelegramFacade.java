@@ -1,6 +1,7 @@
 package com.safronov.timofei.telegram.helper.bot.telegramui.openai;
 
 import com.safronov.timofei.telegram.helper.bot.model.db.UserDao;
+import com.safronov.timofei.telegram.helper.bot.service.openai.OpenAiService;
 import com.safronov.timofei.telegram.helper.bot.telegramui.TelegramBotComponent;
 import com.safronov.timofei.telegram.helper.bot.telegramui.TelegramFacade;
 import com.safronov.timofei.telegram.helper.bot.telegramui.telegram.InlineKeyboardService;
@@ -17,6 +18,7 @@ import java.util.List;
 public class OpenAiTelegramFacade implements TelegramFacade {
 
     private final InlineKeyboardService inlineKeyboardService;
+    private final OpenAiService openAiService;
     private TelegramBotComponent telegramBotComponent;
 
     @Autowired
@@ -26,7 +28,8 @@ public class OpenAiTelegramFacade implements TelegramFacade {
 
     @Override
     public void processMessage(UserDao userDao, String message) {
-        telegramBotComponent.send(userDao.getTgId(), userDao.getTgName() + ": " + message);
+        var text = openAiService.handle(userDao, message);
+        telegramBotComponent.send(userDao.getTgId(), text);
     }
 
     @Override

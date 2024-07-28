@@ -125,7 +125,7 @@ public class TelegramBotComponent extends TelegramLongPollingBot {
     }
 
     public void send(Long who, String what) {
-
+        send(who, what, false);
     }
     public void send(Long who, String what, boolean isMarkDownParse) {
         SendMessage message = SendMessage.builder()
